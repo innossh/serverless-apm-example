@@ -22,23 +22,15 @@ provider:
   runtime: python2.7
 
 # you can overwrite defaults here
-#  stage: dev
-#  region: us-east-1
+  stage: dev
+  region: ap-northeast-1
 
 # you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:PutObject"
-#      Resource:
-#        Fn::Join:
-#          - ""
-#          - - "arn:aws:s3:::"
-#            - "Ref" : "ServerlessDeploymentBucket"
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "cloudwatch:PutMetricData"
+      Resource: "*"
 
 # you can define service wide environment variables here
 #  environment:
@@ -54,8 +46,21 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
-  hello:
-    handler: handler.hello
+  monitor_response_time:
+    handler: handler.monitor_response_time
+    description: 'Monitor response time'
+    events:
+      - schedule:
+          description: 'Calling monitor_response_time function every minute'
+          rate: rate(1 minute)
+  monitor_hook_delivery_time:
+    handler: handler.monitor_hook_delivery_time
+    description: 'Monitor hook delivery time'
+    events:
+      - schedule:
+          description: 'Calling monitor_hook_delivery_time function every minute'
+          rate: rate(1 minute)
+
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
